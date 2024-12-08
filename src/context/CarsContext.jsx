@@ -1,36 +1,29 @@
-import { createContext, useState } from 'react'
+import { createContext, useReducer } from 'react'
+import { reducer, initialState } from '../../src/reducer/CartReducer'
 export const cartContext = createContext()
+function useReducerCart () {
+  const [state, dispatch] = useReducer(reducer, initialState)
+
+  const addToCart = product => dispatch({
+    type: 'ADD_TO_CART',
+    payload: product
+  })
+  const removeFromCart = product => dispatch({
+    type: 'REMOVE_FROM_CART',
+    payload: product
+  })
+  const clearToCart = () => dispatch({
+    type: 'CLEAR_CART'
+  })
+  return { state, addToCart, removeFromCart, clearToCart }
+}
+
 // eslint-disable-next-line react/prop-types
 export function CartProvider ({ children }) {
-  const [cart, setCart] = useState([])
-  const addToCart = product => {
-    // setCart([...cart, product])
-    const productInCartIndex = cart.findIndex(item => item.id === product.id)
-    if (productInCartIndex >= 0) {
-    // una forma usando structedClone
-      const newCart = structuredClone(cart)
-      newCart[productInCartIndex].quantity += 1
-      return setCart(newCart)
-    }
-    // producto esta en el carrito
-    setCart(prevState => ([
-      ...prevState,
-      {
-        ...product,
-        quantity: 1
-      }
-    ]))
-  }
-  const removeFromCart = product => {
-    setCart(prevState => prevState.filter(item => item.id !== product.id))
-  }
-
-  const clearToCart = () => {
-    setCart([])
-  }
+  const { state, addToCart, removeFromCart, clearToCart } = useReducerCart()
   return (
     <cartContext.Provider value={{
-      cart,
+      cart: state,
       addToCart,
       removeFromCart,
       clearToCart

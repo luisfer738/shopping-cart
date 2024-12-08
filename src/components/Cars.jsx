@@ -1,8 +1,30 @@
 import { useId } from 'react'
 import { ClearCartIcon, CartIcon } from './Icons'
 import '../components/Cars.css'
+import { useCart } from './hooks/UseCart'
+// eslint-disable-next-line react/prop-types
+function CartItems ({ thumbnail, price, title, quantity, addToCart }) {
+  return (
+    <li>
+      <img
+        src={thumbnail}
+        alt={title}
+      />
+      <div>
+        <strong>{title}</strong> - ${price}
+      </div>
+      <footer>
+        <small>
+          Qty: {quantity}
+        </small>
+        <button onClick={addToCart}>+</button>
+      </footer>
+    </li>
+  )
+}
 export default function Cars () {
   const cartCheckBox = useId()
+  const { cart, clearToCart, addToCart } = useCart()
   return (
     <div>
       <label className='cart-button' htmlFor={cartCheckBox}>
@@ -11,20 +33,16 @@ export default function Cars () {
       <input id={cartCheckBox} type='checkbox' hidden />
       <aside className='cart'>
         <ul>
-          <li>
-            <img src='https://i.dummyjson.com/data/products/2/thumbnail.jpg' alt='iphone' />
-            <div>
-              <strong>Iphone</strong> - $1049
-            </div>
-            <footer>
-              <small>
-                Qty: 1
-              </small>
-              <button>+</button>
-            </footer>
-          </li>
+          {cart.map(product => (
+            <CartItems
+              key={product.id}
+              addToCart={() => addToCart(product)}
+              {...product}
+            />
+
+          ))}
         </ul>
-        <button>
+        <button onClick={clearToCart}>
           <ClearCartIcon />
         </button>
       </aside>
